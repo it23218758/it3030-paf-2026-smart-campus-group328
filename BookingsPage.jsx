@@ -586,3 +586,4 @@ export const BookingsPage = () => {
         </div>
     );
 };
+
