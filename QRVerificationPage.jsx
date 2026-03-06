@@ -9,7 +9,7 @@ export const QRVerificationPage = () => {
     const [verificationResult, setVerificationResult] = useState(null);
     const [loading, setLoading] = useState(false);
     
-    // User identification for multi-student check-in
+    // User identification for multi-student check-in 
     const [userName, setUserName] = useState('');
     const [userEmail, setUserEmail] = useState('');
     const [studentId, setStudentId] = useState('');
@@ -562,3 +562,4 @@ export const QRVerificationPage = () => {
         </div>
     );
 };
+
