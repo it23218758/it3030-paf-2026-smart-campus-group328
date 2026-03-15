@@ -36,5 +36,3 @@ public class Booking {
     private String qrValidationData;
     private LocalDateTime checkedInAt; // Timestamp when QR was verified and checked in 
 }
-
-
