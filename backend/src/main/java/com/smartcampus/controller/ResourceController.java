@@ -1,11 +1,10 @@
 package com.smartcampus.controller;
 
+import com.smartcampus.dto.ResourceRequestDto;
 import com.smartcampus.model.Resource;
 import com.smartcampus.service.ResourceService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -36,8 +35,9 @@ public class ResourceController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createResource(@jakarta.validation.Valid @RequestBody Resource resource) {
+    public ResponseEntity<?> createResource(@jakarta.validation.Valid @RequestBody ResourceRequestDto request) {
         try {
+            Resource resource = toResource(request);
             Resource created = resourceService.createResource(resource);
             return ResponseEntity.ok(created);
         } catch (Exception e) {
@@ -48,8 +48,9 @@ public class ResourceController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateResource(@PathVariable String id, @jakarta.validation.Valid @RequestBody Resource resource) {
+    public ResponseEntity<?> updateResource(@PathVariable String id, @jakarta.validation.Valid @RequestBody ResourceRequestDto request) {
         try {
+            Resource resource = toResource(request);
             return resourceService.updateResource(id, resource)
                     .map(r -> ResponseEntity.ok((Object) r))
                     .orElse(ResponseEntity.notFound().build());
@@ -75,15 +76,15 @@ public class ResourceController {
         return ResponseEntity.noContent().build();
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-        errors.put("error", "Validation failed: " + errors.toString());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+    private Resource toResource(ResourceRequestDto request) {
+        Resource resource = new Resource();
+        resource.setName(request.getName());
+        resource.setType(request.getType());
+        resource.setCapacity(request.getCapacity());
+        resource.setLocation(request.getLocation());
+        resource.setStatus(request.getStatus());
+        resource.setDescription(request.getDescription());
+        resource.setImageUrl(request.getImageUrl());
+        return resource;
     }
 }

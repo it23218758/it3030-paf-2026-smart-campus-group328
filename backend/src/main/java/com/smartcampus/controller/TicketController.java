@@ -1,5 +1,8 @@
 package com.smartcampus.controller;
 
+import com.smartcampus.dto.AssignTechnicianRequestDto;
+import com.smartcampus.dto.CommentCreateRequestDto;
+import com.smartcampus.dto.TicketStatusUpdateRequestDto;
 import com.smartcampus.model.Comment;
 import com.smartcampus.model.Ticket;
 import com.smartcampus.model.User;
@@ -152,17 +155,15 @@ public class TicketController {
     }
 
     @PutMapping("/{id}/status")
-    public ResponseEntity<?> updateStatus(@PathVariable String id, @RequestBody Map<String, String> body) {
-        String status = body.get("status");
-        return ticketService.updateTicketStatus(id, status)
+    public ResponseEntity<?> updateStatus(@PathVariable String id, @jakarta.validation.Valid @RequestBody TicketStatusUpdateRequestDto request) {
+        return ticketService.updateTicketStatus(id, request.getStatus())
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PatchMapping("/{id}/assign")
-    public ResponseEntity<?> assignTechnician(@PathVariable String id, @RequestBody Map<String, String> body) {
-        String technicianId = body.get("technicianId");
-        return ticketService.assignTechnician(id, technicianId)
+    public ResponseEntity<?> assignTechnician(@PathVariable String id, @jakarta.validation.Valid @RequestBody AssignTechnicianRequestDto request) {
+        return ticketService.assignTechnician(id, request.getTechnicianId())
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -175,10 +176,12 @@ public class TicketController {
     }
 
     @PostMapping("/{id}/comments")
-    public ResponseEntity<?> addComment(@PathVariable String id, @RequestBody Comment comment, @AuthenticationPrincipal OAuth2User principal) {
+    public ResponseEntity<?> addComment(@PathVariable String id, @jakarta.validation.Valid @RequestBody CommentCreateRequestDto request, @AuthenticationPrincipal OAuth2User principal) {
         User user = getAuthenticatedUser(principal);
         if (user == null) return ResponseEntity.status(401).build();
 
+        Comment comment = new Comment();
+        comment.setText(request.getText());
         comment.setAuthorId(user.getId());
         comment.setAuthorName(user.getName());
         
