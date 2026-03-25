@@ -89,7 +89,7 @@ public class TicketService {
         Files.write(filePath, file.getBytes());
 
         // Use full URL with network IP for mobile accessibility
-        String imageUrl = "http://192.168.1.193:8080/uploads/tickets/" + fileName;
+        String imageUrl = "http://172.28.15.11:8080/uploads/tickets/" + fileName;
 
         Ticket ticket = ticketOpt.get();
         ticket.setImageUrl(imageUrl);

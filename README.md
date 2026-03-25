@@ -2,6 +2,10 @@
 
 A full-stack application for managing campus facility bookings with QR code verification.
 
+## Assignment Evidence
+
+For the formal assignment documentation (requirements, architecture diagrams, testing/quality evidence, and CI evidence), see [ASSIGNMENT_DOCUMENTATION.md](ASSIGNMENT_DOCUMENTATION.md).
+
 ## 🚀 Quick Start
 
 ### Local Development
