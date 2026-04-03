@@ -48,7 +48,7 @@ public class SecurityConfig {
             )
             .oauth2Login(oauth2 -> oauth2
                 .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
-                .defaultSuccessUrl("http://172.28.15.11:5173/select-role", true)
+                .defaultSuccessUrl("http://localhost:5173/", true)
             );
             
         return http.build();

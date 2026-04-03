@@ -6,7 +6,7 @@ import { BookingsPage } from './pages/BookingsPage';
 import { TicketsPage } from './pages/TicketsPage';
 import { QRVerificationPage } from './pages/QRVerificationPage';
 import { NotificationsPage } from './pages/NotificationsPage';
-import RoleSelectionPage from './pages/RoleSelectionPage';
+import { UsersPage } from './pages/UsersPage';
 import { Bell, GraduationCap, ShieldCheck, UserCircle, Wrench } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import axios from './api/axios';
@@ -66,7 +66,10 @@ function App() {
                       )}
                     </Link>
                     {user.role === 'ADMIN' && (
-                      <Link to="/verify-qr" className="text-gray-600 hover:text-primary-600 font-medium">Verify QR</Link>
+                      <>
+                        <Link to="/users" className="text-gray-600 hover:text-primary-600 font-medium">Users</Link>
+                        <Link to="/verify-qr" className="text-gray-600 hover:text-primary-600 font-medium">Verify QR</Link>
+                      </>
                     )}
                   </nav>
                 )}
@@ -80,7 +83,6 @@ function App() {
           <Routes>
             {/* Public routes */}
             <Route path="/verify-qr" element={<QRVerificationPage />} />
-            <Route path="/select-role" element={<RoleSelectionPage />} />
             
             {/* Protected routes - require login */}
             {!user ? (
@@ -143,6 +145,9 @@ function App() {
                 <Route path="/bookings" element={<BookingsPage />} />
                 <Route path="/tickets" element={<TicketsPage />} />
                 <Route path="/notifications" element={<NotificationsPage />} />
+                {user.role === 'ADMIN' && (
+                  <Route path="/users" element={<UsersPage />} />
+                )}
               </>
             )}
           </Routes>
