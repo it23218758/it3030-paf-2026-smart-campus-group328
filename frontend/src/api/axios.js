@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create axios instance with base configuration
 const axiosInstance = axios.create({
-    baseURL: 'http://localhost:8082',
+    baseURL: 'http://localhost:8080',
     withCredentials: true, // Required for session/cookies
     timeout: 10000, // 10 second timeout
 });
@@ -10,12 +10,15 @@ const axiosInstance = axios.create({
 // Dynamically update baseURL based on current hostname
 axiosInstance.interceptors.request.use(
     (config) => {
-        // Dynamically set baseURL based on frontend URL
+        // Dynamically set baseURL based on frontend URL and backend port
         const hostname = window.location.hostname;
+        const protocol = window.location.protocol;
+        const backendPort = 8080;
+
         if (hostname === '172.28.15.11') {
-            config.baseURL = 'http://172.28.15.11:8082';
+            config.baseURL = `${protocol}//${hostname}:${backendPort}`;
         } else {
-            config.baseURL = 'http://localhost:8082';
+            config.baseURL = 'http://localhost:8080';
         }
         
         // Set Content-Type to application/json for non-FormData requests
@@ -66,7 +69,7 @@ axiosInstance.interceptors.response.use(
         if (error.response) {
             console.error('📛 Error Response:', error.response.status, error.response.data);
         } else if (error.request) {
-            console.error('📛 No Response Received - Check if backend is running on http://localhost:8082');
+            console.error('📛 No Response Received - Check if backend is running on http://localhost:8080');
         }
         return Promise.reject(error);
     }
