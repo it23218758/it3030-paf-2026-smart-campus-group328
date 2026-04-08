@@ -22,6 +22,8 @@ export const TicketDetailsModal = ({ ticket, onClose }) => {
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
     const [status, setStatus] = useState(ticket?.status || 'OPEN');
+    const [commentFile, setCommentFile] = useState(null);
+    const [commentFilePreview, setCommentFilePreview] = useState(null);
 
     useEffect(() => {
         if (!ticket?.isNew && ticket?.id) {
@@ -127,14 +129,47 @@ export const TicketDetailsModal = ({ ticket, onClose }) => {
 
     const handleAddComment = async (e) => {
         e.preventDefault();
-        if (!newComment.trim()) return;
+        if (!newComment.trim() && !commentFile) return;
         try {
-            await axios.post(`/api/tickets/${ticket.id}/comments`, { text: newComment }, { withCredentials: true });
+            const commentRes = await axios.post(`/api/tickets/${ticket.id}/comments`, { text: newComment }, { withCredentials: true });
+            
+            if (commentFile && commentRes.data?.id) {
+                const formData = new FormData();
+                formData.append('file', commentFile);
+                await axios.post(`/api/tickets/comments/${commentRes.data.id}/upload`, formData, { withCredentials: true });
+            }
+            
             setNewComment('');
+            removeCommentFile();
             fetchComments();
         } catch (err) {
             alert("Failed to add comment");
         }
+    };
+
+    const handleCommentFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File size must be less than 5MB');
+                return;
+            }
+            if (!file.type.startsWith('image/')) {
+                alert('Only image files are allowed');
+                return;
+            }
+            setCommentFile(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setCommentFilePreview(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const removeCommentFile = () => {
+        setCommentFile(null);
+        setCommentFilePreview(null);
     };
 
     const handleFileChange = (e) => {
@@ -348,6 +383,14 @@ export const TicketDetailsModal = ({ ticket, onClose }) => {
                                         <span className="text-xs text-gray-500">{new Date(c.createdAt).toLocaleString()}</span>
                                     </div>
                                     <p className="text-sm text-gray-700">{c.text}</p>
+                                    {c.imageUrl && (
+                                        <img 
+                                            src={c.imageUrl} 
+                                            alt="Comment attachment" 
+                                            className="mt-2 max-h-32 rounded-lg shadow-sm border border-gray-200 cursor-pointer object-cover"
+                                            onClick={() => window.open(c.imageUrl, '_blank')}
+                                        />
+                                    )}
                                 </div>
                             ))}
                             {comments.length === 0 && <p className="text-sm text-gray-500 italic">No comments yet.</p>}
@@ -356,7 +399,32 @@ export const TicketDetailsModal = ({ ticket, onClose }) => {
                 </div>
 
                 <div className="p-4 border-t border-gray-100 bg-gray-50 rounded-b-2xl">
+                    {commentFilePreview && (
+                        <div className="mb-2 relative inline-block">
+                            <img src={commentFilePreview} alt="Preview" className="h-16 rounded border" />
+                            <button
+                                type="button"
+                                onClick={removeCommentFile}
+                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-0.5 hover:bg-red-600 shadow"
+                            >
+                                <X className="w-3 h-3" />
+                            </button>
+                        </div>
+                    )}
                     <form onSubmit={handleAddComment} className="flex gap-2">
+                        <input
+                            type="file"
+                            accept="image/*"
+                            id="comment-file"
+                            className="hidden"
+                            onChange={handleCommentFileChange}
+                        />
+                        <label 
+                            htmlFor="comment-file" 
+                            className="p-2 text-gray-500 hover:text-primary-600 cursor-pointer flex items-center justify-center border border-gray-300 rounded-lg bg-white"
+                        >
+                            <Paperclip className="w-5 h-5" />
+                        </label>
                         <input
                             type="text"
                             value={newComment}

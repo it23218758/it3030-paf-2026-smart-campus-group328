@@ -9,8 +9,11 @@ export const ResourcesPage = () => {
     const { user } = useAuth();
     const [resources, setResources] = useState([]);
     const [search, setSearch] = useState('');
+    const [category, setCategory] = useState('All');
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingResource, setEditingResource] = useState(null);
+
+    const CATEGORIES = ['All', 'Laboratory', 'Lecture Hall', 'Equipment', 'Other'];
 
     useEffect(() => {
         fetchResources();
@@ -76,21 +79,41 @@ export const ResourcesPage = () => {
                 )}
             </div>
 
-            <div className="relative mb-8 max-w-md">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Search className="text-gray-400 w-5 h-5" />
+            <div className="flex flex-col md:flex-row md:items-center gap-4 mb-8">
+                <div className="relative w-full max-w-md">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <Search className="text-gray-400 w-5 h-5" />
+                    </div>
+                    <input
+                        type="text"
+                        placeholder="Search resources..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        className="pl-10 w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
+                    />
                 </div>
-                <input
-                    type="text"
-                    placeholder="Search resources..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className="pl-10 w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
-                />
+                
+                <div className="flex flex-wrap gap-2">
+                    {CATEGORIES.map(cat => (
+                        <button
+                            key={cat}
+                            onClick={() => setCategory(cat)}
+                            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                                category === cat 
+                                ? 'bg-primary-600 text-white shadow-md' 
+                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            }`}
+                        >
+                            {cat}
+                        </button>
+                    ))}
+                </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {resources.map(resource => (
+                {resources
+                    .filter(resource => category === 'All' || resource.type === category)
+                    .map(resource => (
                     <ResourceCard 
                         key={resource.id} 
                         resource={resource} 
@@ -98,7 +121,7 @@ export const ResourcesPage = () => {
                         onDelete={() => handleDelete(resource.id)}
                     />
                 ))}
-                {resources.length === 0 && (
+                {resources.filter(resource => category === 'All' || resource.type === category).length === 0 && (
                     <div className="col-span-fulltext-center text-gray-500 py-10">
                         No resources found. Try adding some!
                     </div>
