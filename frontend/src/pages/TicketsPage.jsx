@@ -66,36 +66,65 @@ export const TicketsPage = () => {
             {loading ? (
                 <div>Loading...</div>
             ) : (
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                    <ul className="divide-y divide-gray-200">
-                        {tickets.map(ticket => (
-                            <li
-                                key={ticket.id}
-                                className="hover:bg-gray-50 transition cursor-pointer p-6 flex justify-between items-center"
-                                onClick={() => setSelectedTicket(ticket)}
-                            >
-                                <div className="flex items-start gap-4">
-                                    <div className="mt-1">{getStatusIcon(ticket.status)}</div>
-                                    <div>
-                                        <h3 className="text-lg font-bold text-gray-900 mb-1">{ticket.title}</h3>
-                                        <p className="text-sm text-gray-500 mb-2">{ticket.resourceName || 'General Campus'} • Created {new Date(ticket.createdAt).toLocaleDateString()}</p>
-                                        <p className="text-sm text-gray-700 font-medium">{ticket.status}</p>
-                                    </div>
-                                </div>
-                                {ticket.assignedTechnicianId && (
-                                    <div className="hidden md:block text-sm text-gray-500">
-                                        Assigned Tech ID: {ticket.assignedTechnicianId}
-                                    </div>
-                                )}
-                            </li>
-                        ))}
-                        {tickets.length === 0 && (
-                            <li className="p-12 text-center text-gray-500">
-                                No tickets found.
-                            </li>
-                        )}
-                    </ul>
-                </div>
+<div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+  <ul className="divide-y divide-gray-200">
+    {tickets.length > 0 ? (
+      tickets.map((ticket) => {
+        const {
+          id,
+          title,
+          status,
+          resourceName,
+          createdAt,
+          assignedTechnicianId,
+        } = ticket;
+
+        return (
+          <li
+            key={id}
+            onClick={() => setSelectedTicket(ticket)}
+            className="flex items-center justify-between p-6 cursor-pointer transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            role="button"
+            tabIndex={0}
+          >
+           
+            <div className="flex items-start gap-4">
+              <div className="mt-1">
+                {getStatusIcon(status)}
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {title}
+                </h3>
+
+                <p className="text-sm text-gray-500 mt-1">
+                  {resourceName || "General Campus"} •{" "}
+                  {new Date(createdAt).toLocaleDateString()}
+                </p>
+
+                <span className="inline-block mt-2 text-sm font-medium text-gray-700">
+                  {status}
+                </span>
+              </div>
+            </div>
+
+            
+            {assignedTechnicianId && (
+              <div className="hidden md:block text-sm text-gray-500">
+                Tech ID: {assignedTechnicianId}
+              </div>
+            )}
+          </li>
+        );
+      })
+    ) : (
+      <li className="p-12 text-center text-gray-500">
+        No tickets available.
+      </li>
+    )}
+  </ul>
+</div>
             )}
 
             {selectedTicket && (
