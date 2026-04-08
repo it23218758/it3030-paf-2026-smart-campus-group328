@@ -55,7 +55,9 @@ public class TicketService {
     public List<Ticket> getTechnicianTickets(String technicianId) {
         return ticketRepository.findByAssignedTechnicianIdOrderByCreatedAtDesc(technicianId);
     }
-
+    public List<Ticket> removeTechnicianTickets(String technicianId) {
+        return ticketRepository.findByAssignedRemoveTechnicianIdOrderByCreatedAtDesc(technicianId);
+    }
     public Ticket createTicket(Ticket ticket) {
         ticket.setStatus("OPEN");
         ticket.setCreatedAt(LocalDateTime.now());
