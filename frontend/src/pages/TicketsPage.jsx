@@ -34,15 +34,17 @@ export const TicketsPage = () => {
         setSelectedTicket({ isNew: true });
     };
 
-    const getStatusIcon = (status) => {
-        switch (status) {
-            case 'OPEN': return <AlertCircle className="w-5 h-5 text-blue-500" />;
-            case 'IN_PROGRESS': return <Wrench className="w-5 h-5 text-yellow-500" />;
-            case 'RESOLVED': return <CheckCircle2 className="w-5 h-5 text-green-500" />;
-            case 'CLOSED': return <CheckCircle2 className="w-5 h-5 text-gray-500" />;
-            case 'REJECTED': return <XCircle className="w-5 h-5 text-red-500" />;
-            default: return null;
-        }
+const statusIconMap = {
+  OPEN: <AlertCircle className="w-5 h-5 text-blue-500" />,
+  IN_PROGRESS: <Wrench className="w-5 h-5 text-yellow-500" />,
+  RESOLVED: <CheckCircle2 className="w-5 h-5 text-green-500" />,
+  CLOSED: <CheckCircle2 className="w-5 h-5 text-gray-500" />,
+  REJECTED: <XCircle className="w-5 h-5 text-red-500" />,
+};
+
+const getStatusIcon = (status) => {
+  return statusIconMap[status] || null;
+};
     };
 
     return (
