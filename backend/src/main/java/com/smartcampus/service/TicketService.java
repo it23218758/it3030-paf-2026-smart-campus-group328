@@ -126,10 +126,6 @@ public class TicketService {
                     title = "Ticket Closed";
                     message = "Your ticket '" + saved.getTitle() + "' has been closed.";
                     break;
-                                    case "Re opened":
-                    title = "Ticket Re opened";
-                    message = "Your ticket '" + saved.getTitle() + "' has been re opened.";
-                    break;
                 case "REJECTED":
                     title = "Ticket Rejected ✗";
                     message = "Your ticket '" + saved.getTitle() + "' has been rejected.";
