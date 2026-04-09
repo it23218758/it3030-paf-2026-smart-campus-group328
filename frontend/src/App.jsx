@@ -22,7 +22,7 @@ function App() {
       
       // Connect to SSE stream
       // We use the same base URL as axios
-      const baseUrl = axios.defaults.baseURL || 'http://localhost:8082';
+      const baseUrl = axios.defaults.baseURL || 'http://localhost:8080';
       const eventSource = new EventSource(`${baseUrl}/api/notifications/stream`, { withCredentials: true });
       
       eventSource.addEventListener('notification', (e) => {
