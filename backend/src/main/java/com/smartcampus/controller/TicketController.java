@@ -188,6 +188,16 @@ public class TicketController {
         return ResponseEntity.ok(ticketService.addComment(id, comment));
     }
 
+    @PostMapping("/comments/{commentId}/upload")
+    public ResponseEntity<?> uploadCommentImage(@PathVariable String commentId, @RequestParam("file") MultipartFile file) {
+        try {
+            String url = ticketService.uploadCommentImage(commentId, file);
+            return ResponseEntity.ok(Map.of("imageUrl", url));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Upload failed: " + e.getMessage());
+        }
+    }
+
     @DeleteMapping("/comments/{commentId}")
     public ResponseEntity<?> deleteComment(@PathVariable String commentId, @AuthenticationPrincipal OAuth2User principal) {
         User user = getAuthenticatedUser(principal);
