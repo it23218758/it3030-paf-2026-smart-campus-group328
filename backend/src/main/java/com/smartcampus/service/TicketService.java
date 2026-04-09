@@ -209,4 +209,22 @@ public class TicketService {
             }
         });
     }
+
+    public String uploadCommentImage(String commentId, MultipartFile file) throws IOException {
+        Optional<Comment> commentOpt = commentRepository.findById(commentId);
+        if (commentOpt.isEmpty()) throw new RuntimeException("Comment not found");
+
+        String fileName = UUID.randomUUID().toString() + "_comment_" + file.getOriginalFilename();
+        Path filePath = Paths.get(UPLOAD_DIR + fileName);
+        Files.write(filePath, file.getBytes());
+
+        // Use full URL with network IP for accessibility
+        String imageUrl = "http://localhost:8082/uploads/tickets/" + fileName;
+
+        Comment comment = commentOpt.get();
+        comment.setImageUrl(imageUrl);
+        commentRepository.save(comment);
+
+        return imageUrl;
+    }
 }
