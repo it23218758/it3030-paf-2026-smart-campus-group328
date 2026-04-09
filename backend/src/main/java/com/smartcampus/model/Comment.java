@@ -25,5 +25,6 @@ public class Comment {
     private String authorName;
     
     private String text;
+    private String imageUrl;
     private LocalDateTime createdAt;
 }
