@@ -1,13 +1,17 @@
 package com.smartcampus.controller;
 
 import com.smartcampus.model.Notification;
+import com.smartcampus.model.Role;
 import com.smartcampus.model.User;
 import com.smartcampus.repository.UserRepository;
 import com.smartcampus.service.NotificationService;
+import com.smartcampus.service.SseService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
+
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,10 +21,12 @@ import java.util.Optional;
 public class NotificationController {
 
     private final NotificationService notificationService;
+    private final SseService sseService;
     private final UserRepository userRepository;
 
-    public NotificationController(NotificationService notificationService, UserRepository userRepository) {
+    public NotificationController(NotificationService notificationService, SseService sseService, UserRepository userRepository) {
         this.notificationService = notificationService;
+        this.sseService = sseService;
         this.userRepository = userRepository;
     }
 
@@ -74,6 +80,18 @@ public class NotificationController {
                 notificationService.getUserNotifications(user.getId());
         
         return ResponseEntity.ok(notifications);
+    }
+
+    @GetMapping("/stream")
+    public SseEmitter streamNotifications(@AuthenticationPrincipal OAuth2User principal) {
+        User user = getAuthenticatedUser(principal);
+        if (user == null) {
+            // Unauthenticated requests should just close immediately or return empty emitter
+            SseEmitter emptyEmitter = new SseEmitter(1L);
+            emptyEmitter.complete();
+            return emptyEmitter;
+        }
+        return sseService.subscribe(user.getId());
     }
 
     @PatchMapping("/{id}/read")
