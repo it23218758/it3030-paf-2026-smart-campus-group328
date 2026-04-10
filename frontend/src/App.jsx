@@ -6,43 +6,20 @@ import { BookingsPage } from './pages/BookingsPage';
 import { TicketsPage } from './pages/TicketsPage';
 import { QRVerificationPage } from './pages/QRVerificationPage';
 import { NotificationsPage } from './pages/NotificationsPage';
-import { UsersPage } from './pages/UsersPage';
-import { Bell, GraduationCap, ShieldCheck, UserCircle, Wrench, X } from 'lucide-react';
+import RoleSelectionPage from './pages/RoleSelectionPage';
+import { Bell, GraduationCap, ShieldCheck, UserCircle, Wrench } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import axios from './api/axios';
 
 function App() {
   const { user, loading, loginAsDev } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
-  const [toast, setToast] = useState(null);
 
   useEffect(() => {
     if (user) {
       loadUnreadCount();
-      
-      // Connect to SSE stream
-      // We use the same base URL as axios
-      const baseUrl = axios.defaults.baseURL || 'http://localhost:8080';
-      const eventSource = new EventSource(`${baseUrl}/api/notifications/stream`, { withCredentials: true });
-      
-      eventSource.addEventListener('notification', (e) => {
-        const notification = JSON.parse(e.data);
-        
-        // Update unread count automatically
-        setUnreadCount(prev => prev + 1);
-        
-        // Show toast
-        setToast(notification);
-        
-        // Auto hide toast after 5 seconds
-        setTimeout(() => {
-          setToast(null);
-        }, 5000);
-      });
-
-      return () => {
-        eventSource.close();
-      };
+      const interval = setInterval(loadUnreadCount, 30000); // Poll every 30 seconds
+      return () => clearInterval(interval);
     }
   }, [user]);
 
@@ -89,10 +66,7 @@ function App() {
                       )}
                     </Link>
                     {user.role === 'ADMIN' && (
-                      <>
-                        <Link to="/users" className="text-gray-600 hover:text-primary-600 font-medium">Users</Link>
-                        <Link to="/verify-qr" className="text-gray-600 hover:text-primary-600 font-medium">Verify QR</Link>
-                      </>
+                      <Link to="/verify-qr" className="text-gray-600 hover:text-primary-600 font-medium">Verify QR</Link>
                     )}
                   </nav>
                 )}
@@ -106,6 +80,7 @@ function App() {
           <Routes>
             {/* Public routes */}
             <Route path="/verify-qr" element={<QRVerificationPage />} />
+            <Route path="/select-role" element={<RoleSelectionPage />} />
             
             {/* Protected routes - require login */}
             {!user ? (
@@ -168,31 +143,10 @@ function App() {
                 <Route path="/bookings" element={<BookingsPage />} />
                 <Route path="/tickets" element={<TicketsPage />} />
                 <Route path="/notifications" element={<NotificationsPage />} />
-                {user.role === 'ADMIN' && (
-                  <Route path="/users" element={<UsersPage />} />
-                )}
               </>
             )}
           </Routes>
         </main>
-
-        {/* Global Toast Notification */}
-        {toast && (
-          <div className="fixed bottom-4 right-4 z-50 bg-white border-l-4 border-primary-500 rounded-lg shadow-xl p-4 min-w-[300px] animate-in slide-in-from-bottom-5">
-            <div className="flex justify-between items-start">
-              <div className="flex gap-3">
-                <Bell className="w-5 h-5 text-primary-500 mt-0.5" />
-                <div>
-                  <h4 className="font-bold text-gray-900 text-sm">{toast.title}</h4>
-                  <p className="text-gray-600 text-sm mt-1">{toast.message}</p>
-                </div>
-              </div>
-              <button onClick={() => setToast(null)} className="text-gray-400 hover:text-gray-600">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        )}
       </div>
     </BrowserRouter>
   );

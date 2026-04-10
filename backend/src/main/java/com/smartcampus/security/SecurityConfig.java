@@ -48,7 +48,7 @@ public class SecurityConfig {
             )
             .oauth2Login(oauth2 -> oauth2
                 .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
-                .defaultSuccessUrl("http://localhost:5173/", true)
+                .defaultSuccessUrl("http://172.28.15.11:5173/select-role", true)
             );
             
         return http.build();
@@ -57,10 +57,14 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of(
-            "http://localhost:5173",              // Vite dev server on localhost
-            "http://127.0.0.1:5173",             // Alternative localhost
-            "http://172.28.15.11:5173"          // Vite dev server on network (for mobile access)
+        configuration.setAllowedOriginPatterns(List.of(
+            "http://localhost:*",
+            "http://127.0.0.1:*",
+            "http://10.*:*",
+            "http://172.*:*",
+            "http://192.168.*:*",
+            "https://*.ngrok-free.app",
+            "https://*.ngrok.io"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));

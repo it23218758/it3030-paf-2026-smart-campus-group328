@@ -3,17 +3,12 @@ package com.smartcampus.security;
 import com.smartcampus.model.Role;
 import com.smartcampus.model.User;
 import com.smartcampus.repository.UserRepository;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -34,30 +29,25 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String googleId = oAuth2User.getAttribute("sub");
         String picture = oAuth2User.getAttribute("picture");
 
-        User user;
         Optional<User> userOptional = userRepository.findByEmail(email);
         if (userOptional.isPresent()) {
-            user = userOptional.get();
-            user.setName(name);
-            user.setAvatarUrl(picture);
+            User existingUser = userOptional.get();
+            existingUser.setName(name);
+            existingUser.setAvatarUrl(picture);
             // Updating existing user
-            user = userRepository.save(user);
+            userRepository.save(existingUser);
         } else {
-            // Registering a new user via OAuth natively defaulting to USER
-            user = User.builder()
+            // Registering a new user via OAuth
+            User newUser = User.builder()
                     .email(email)
                     .name(name)
                     .googleId(googleId)
                     .avatarUrl(picture)
                     .role(Role.USER) // Default role
                     .build();
-            user = userRepository.save(user);
+            userRepository.save(newUser);
         }
 
-        List<GrantedAuthority> authorities = Collections.singletonList(
-                new SimpleGrantedAuthority("ROLE_" + user.getRole().name())
-        );
-
-        return new DefaultOAuth2User(authorities, oAuth2User.getAttributes(), "email");
+        return oAuth2User;
     }
 }

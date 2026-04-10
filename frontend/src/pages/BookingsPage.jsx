@@ -164,9 +164,32 @@ export const BookingsPage = () => {
         handleStatusUpdate(rejectingBookingId, 'REJECTED', rejectionReason);
     };
 
+    const buildQrBaseUrl = () => {
+        const configured = import.meta.env.VITE_NETWORK_URL?.trim();
+        const fallback = window.location.origin;
+
+        let base;
+        try {
+            base = new URL(configured || fallback);
+        } catch {
+            base = new URL(fallback);
+        }
+
+        // If no explicit port is configured for LAN URL, default to Vite dev port.
+        if (!base.port && (base.protocol === 'http:' || base.protocol === 'https:')) {
+            base.port = '5173';
+        }
+
+        return base.origin;
+    };
+
+    const buildQrVerificationUrl = (qrData) => {
+        return `${buildQrBaseUrl()}/verify-qr?qrData=${encodeURIComponent(qrData)}`;
+    };
+
     const copyQRCode = (qrData, bookingId) => {
         // Copy the full URL, not just the token
-        const qrUrl = `${import.meta.env.VITE_NETWORK_URL || window.location.origin}/verify-qr?qrData=${encodeURIComponent(qrData)}`;
+        const qrUrl = buildQrVerificationUrl(qrData);
         console.log('Copying QR URL:', qrUrl);
         
         // Try modern clipboard API first, fallback to textarea method
@@ -426,7 +449,7 @@ export const BookingsPage = () => {
                                         <span className="text-xs text-gray-600 mb-2 uppercase font-bold tracking-wide">Verification QR Code</span>
                                         <div className="bg-white p-3 rounded-lg shadow-md">
                                             <QRCodeSVG 
-                                                value={`${import.meta.env.VITE_NETWORK_URL || window.location.origin}/verify-qr?qrData=${encodeURIComponent(booking.qrValidationData)}`}
+                                                value={buildQrVerificationUrl(booking.qrValidationData)}
                                                 size={120} 
                                                 level="M" 
                                             />
@@ -435,13 +458,7 @@ export const BookingsPage = () => {
                                             <p className="text-xs text-blue-600 mb-2 font-semibold text-center">📱 Scan with your phone to check in</p>
                                             <p className="text-xs text-gray-500 mb-1 font-semibold">For mobile access, open:</p>
                                             <div className="bg-white px-3 py-2 rounded border border-gray-300 text-xs text-gray-700 break-all mb-2">
-                                                {(() => {
-                                                    const hostname = window.location.hostname;
-                                                    const port = window.location.port;
-                                                    return hostname === 'localhost' || hostname === '127.0.0.1'
-                                                        ? `http://[YOUR_COMPUTER_IP]:${port}/verify-qr?qrData=${booking.qrValidationData}`
-                                                        : `${window.location.origin}/verify-qr?qrData=${encodeURIComponent(booking.qrValidationData)}`;
-                                                })()}
+                                                {buildQrVerificationUrl(booking.qrValidationData)}
                                             </div>
                                             <p className="text-xs text-gray-400 italic text-center">Check-in opens 15 min before booking time</p>
                                             <button

@@ -2,7 +2,6 @@ package com.smartcampus.service;
 
 import com.smartcampus.model.Notification;
 import com.smartcampus.repository.NotificationRepository;
-import com.smartcampus.service.SseService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -13,11 +12,9 @@ import java.util.Optional;
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
-    private final SseService sseService;
 
-    public NotificationService(NotificationRepository notificationRepository, SseService sseService) {
+    public NotificationService(NotificationRepository notificationRepository) {
         this.notificationRepository = notificationRepository;
-        this.sseService = sseService;
     }
 
     public Notification createNotification(String userId, String title, String message, String relatedEntityId, String relatedEntityType) {
@@ -30,12 +27,7 @@ public class NotificationService {
                 .relatedEntityId(relatedEntityId)
                 .relatedEntityType(relatedEntityType)
                 .build();
-        Notification saved = notificationRepository.save(notification);
-        
-        // Dispatch to SSE clients instantly
-        sseService.dispatchNotification(userId, saved);
-        
-        return saved;
+        return notificationRepository.save(notification);
     }
 
     public List<Notification> getUserNotifications(String userId) {

@@ -1,8 +1,24 @@
 import axios from 'axios';
 
+const envApiUrl = import.meta.env.VITE_API_URL?.trim();
+
+const resolveApiBaseUrl = () => {
+    if (envApiUrl) {
+        return envApiUrl;
+    }
+
+    const hostname = window.location.hostname;
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        return 'http://localhost:8080';
+    }
+
+    // For LAN/mobile access, call backend on the same host as the frontend.
+    return `http://${hostname}:8080`;
+};
+
 // Create axios instance with base configuration
 const axiosInstance = axios.create({
-    baseURL: 'http://localhost:8080',
+    baseURL: resolveApiBaseUrl(),
     withCredentials: true, // Required for session/cookies
     timeout: 10000, // 10 second timeout
 });
@@ -10,16 +26,8 @@ const axiosInstance = axios.create({
 // Dynamically update baseURL based on current hostname
 axiosInstance.interceptors.request.use(
     (config) => {
-        // Dynamically set baseURL based on frontend URL and backend port
-        const hostname = window.location.hostname;
-        const protocol = window.location.protocol;
-        const backendPort = 8080;
-
-        if (hostname === '172.28.15.11') {
-            config.baseURL = `${protocol}//${hostname}:${backendPort}`;
-        } else {
-            config.baseURL = 'http://localhost:8080';
-        }
+        // Keep base URL dynamic so requests work from laptop, phone, or tunnel URLs.
+        config.baseURL = resolveApiBaseUrl();
         
         // Set Content-Type to application/json for non-FormData requests
         // FormData requests should not have Content-Type set (axios handles it automatically with boundary)
@@ -69,7 +77,7 @@ axiosInstance.interceptors.response.use(
         if (error.response) {
             console.error('📛 Error Response:', error.response.status, error.response.data);
         } else if (error.request) {
-            console.error('📛 No Response Received - Check if backend is running on http://localhost:8080');
+            console.error('📛 No Response Received - Check if backend is running and reachable from this device');
         }
         return Promise.reject(error);
     }
