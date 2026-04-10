@@ -177,7 +177,7 @@ export const TicketDetailsModal = ({ ticket, onClose }) => {
         if (file) {
             // Validate file size (max 5MB)
             if (file.size > 5 * 1024 * 1024) {
-                alert('File size must be less than 4MB');
+                alert('File size must be less than 5MB');
                 return;
             }
             
