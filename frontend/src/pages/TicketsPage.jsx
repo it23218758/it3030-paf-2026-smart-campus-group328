@@ -42,6 +42,7 @@ export const TicketsPage = () => {
             case 'CLOSED': return <CheckCircle2 className="w-5 h-5 text-gray-500" />;
             case 'REJECTED': return <XCircle className="w-5 h-5 text-red-500" />;
             case 'Remove Ticket': return <XCircle2 className="w-5 h-5 text-red-500" />;
+            case 'Rejecte Ticket': return <XCircle2 className="w-5 h-5 text-red-500" />;
             default: return null;
         }
     };
