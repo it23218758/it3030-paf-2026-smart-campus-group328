@@ -36,7 +36,7 @@ export const QRVerificationPage = () => {
 
     const verifyQRCode = async (dataToVerify, withUserInfo = false) => {
         let qrValue = dataToVerify || qrData;
-        if (!qrValue.trim()) return;    
+        if (!qrValue.trim()) return;
 
         // Clean the QR value - extract just the token if it's a full URL
         if (qrValue.includes('http') || qrValue.includes('verify-qr')) {
