@@ -279,8 +279,7 @@ export const TicketDetailsModal = ({ ticket, onClose }) => {
                                             <Paperclip className="w-8 h-8 text-gray-400 mx-auto mb-2" />
                                             <p className="text-sm text-gray-600">Click to upload image</p>
                                             <p className="text-xs text-gray-400 mt-1">PNG, JPG up to 5MB</p>
-                                            <p className="text-xs text-gray-400 mt-1">PNG, JPG up to 4MB</p>
-                                            <p className="text-xs text-gray-400 mt-1"> JPG up to 4MB</p>
+                                        
                                         </label>
                                     </>
                                 ) : (
